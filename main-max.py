@@ -66,74 +66,96 @@ def excelread(filename):
     dfi.columns = [f.split('.')[0]]
     di.append(dfi) #list here
 
-def mplot(start, end):
+def mplot(samples):
 ## plotting each sample in it's own figure - panel for each column of data
-    i = start
     fig, axs = plt.subplots(3,2, sharex = True, figsize = (12,12))
-    legends=[]
-    while i <= end:
+    legends =[]
+    oscstrain =[]
+    oscstress =[]
+    tandelta =[]
+    stgmod =[]
+    lossmod =[]
+    zpos =[]
+    for i in samples:
         #make plot look nice
         platenumber = names[i][1]
         fig.suptitle('plate %s'%platenumber)
-        samples=names[i]
+        
+        #update string with each run's average values
+        samples = names[i]
+        strain = "avg %0.3f"%davg[i], "+/-%.3f"%dstd[i]
+        stress = "avg %0.3f"%eavg[i], "+/-%.3f"%estd[i]
+        delta = "avg %0.3f"%favg[i], "+/-%.3f"%fstd[i]
+        storage = "avg %0.3f"%gavg[i], "+/-%.3f"%gstd[i]
+        loss = "avg %0.3f"%havg[i], "+/-%.3f"%hstd[i]
+        zposition = "avg %0.3f"%iavg[i], "+/-%.3f"%istd[i]
+        
+        #append string used in legend
         legends.append(samples)
+        oscstrain.append(strain)
+        oscstress.append(stress)
+        tandelta.append(delta)
+        stgmod.append(storage)
+        lossmod.append(loss)
+        zpos.append(zposition)
+    
+        
         # Plot oscillation strain
         axs[0,0].plot(ones,ddata[names[i]])
         axs[0,0].set_title('oscillation strain', fontsize = 16)
         axs[0,0].set_ylabel('%', fontsize = 12)
         axs[0,0].set_ylim([daxismin, daxismax])
+        axs[0,0].legend(oscstrain)
+        
         #plot oscillation stress
         axs[0,1].plot(ones,edata[names[i]])
         axs[0,1].set_title('oscillation stress', fontsize = 16)
         axs[0,1].set_ylabel('kpa', fontsize = 12)
         axs[0,1].set_ylim([eaxismin, eaxismax])
+        axs[0,1].legend(oscstress)
+        
         #plot tan(delta)
         axs[1,0].plot(ones,fdata[names[i]])
         axs[1,0].set_title('tan(delta)', fontsize = 16)
         axs[1,0].set_ylabel(' ', fontsize = 12)
         axs[1,0].set_ylim([faxismin, faxismax])
+        axs[1,0].legend(tandelta)
+
         # Plot storage modulus
         axs[1,1].plot(ones,gdata[names[i]])
         axs[1,1].set_title('storage modulus', fontsize = 16)
         axs[1,1].set_ylabel('kpa', fontsize = 12)
         axs[1,1].set_ylim([gaxismin, gaxismax])
+        axs[1,1].legend(stgmod)
+
         #plot loss modulus
         axs[2,0].plot(ones,hdata[names[i]])
         axs[2,0].set_title('loss modulus', fontsize = 16)
         axs[2,0].set_ylabel('kpa', fontsize = 12)
         axs[2,0].set_xlabel('acquisition', fontsize = 12)
         axs[2,0].set_ylim([haxismin, haxismax])
+        axs[2,0].legend(lossmod)
+
         #plot position
         axs[2,1].plot(ones,idata[names[i]])
         axs[2,1].set_title('z-position', fontsize = 16)
         axs[2,1].set_ylabel('position (mm)', fontsize = 12)
         axs[2,1].set_xlabel('acquisition', fontsize = 12)
         axs[2,1].set_ylim([iaxismin, iaxismax])
-        # plt.savefig('plot_%s.png'%i, dpi=600)  
-        # plt.close() #comment this out if you want to see the plots. Closing plots helps code run faster
+        axs[2,1].legend(zpos)
+
+        ## save the plots - optional during troubleshooting
+        plt.savefig('plot_%s.png'%i, dpi=600)  
+        plt.close() #comment this out if you want to see the plots. Closing plots helps code run faster
         i +=1
     plt.tight_layout()
     fig.legend(legends)
-    return start + end;
-
 
 #loop through list
 for f in files_xls: #read through excel files in the folder
     fname = f.split('.')[0]
-    if f[1] == '1':
-        excelread(f)
-for f in files_xls: #read through excel files in the folder
-    fname = f.split('.')[0]
-    if f[1] == '2':
-        excelread(f)
-for f in files_xls: #read through excel files in the folder
-    fname = f.split('.')[0]
-    if f[1] == '3':
-        excelread(f)
-for f in files_xls: #read through excel files in the folder
-    fname = f.split('.')[0]
-    if f[1] == '4':
-        excelread(f)    
+    excelread(f)
+ 
    
    ## manupulate data from dataframe
 # oscillation strain
@@ -207,53 +229,19 @@ iaxismax = imax[imaxid]
 imin = idata.min()
 iminid = imin.idxmin()
 iaxismin = imin[iminid]
-    
-# print(mplot(1, 5))
-mplot(0,2)
-      # ## plotting each sample in it's own figure - panel for each column of data
-# for i in names:
-#     # plt.figure()
-#     fig, axs = plt.subplots(3,2, sharex = True, figsize = (12,12))
-#     #make plot look nice
-#     fig.suptitle(i)
-#     # Plot oscillation strain
-#     axs[0,0].plot(ones,ddata[i])
-#     axs[0,0].set_title('oscillation strain', fontsize = 16)
-#     axs[0,0].set_ylabel('%', fontsize = 12)
-#     axs[0,0].set_ylim([daxismin, daxismax])
-#     #plot oscillation stress
-#     axs[0,1].plot(ones,edata[i])
-#     axs[0,1].set_title('oscillation stress', fontsize = 16)
-#     axs[0,1].set_ylabel('kpa', fontsize = 12)
-#     axs[0,1].set_ylim([eaxismin, eaxismax])
-#     #plot tan(delta)
-#     axs[1,0].plot(ones,fdata[i])
-#     axs[1,0].set_title('tan(delta)', fontsize = 16)
-#     axs[1,0].set_ylabel(' ', fontsize = 12)
-#     axs[1,0].set_ylim([faxismin, faxismax])
-#     # Plot storage modulus
-#     axs[1,1].plot(ones,gdata[i])
-#     axs[1,1].set_title('storage modulus', fontsize = 16)
-#     axs[1,1].set_ylabel('kpa', fontsize = 12)
-#     axs[1,1].set_ylim([gaxismin, gaxismax])
-#     #plot loss modulus
-#     axs[2,0].plot(ones,hdata[i])
-#     axs[2,0].set_title('loss modulus', fontsize = 16)
-#     axs[2,0].set_ylabel('kpa', fontsize = 12)
-#     axs[2,0].set_xlabel('acquisition', fontsize = 12)
-#     axs[2,0].set_ylim([haxismin, haxismax])
-#     #plot position
-#     axs[2,1].plot(ones,idata[i])
-#     axs[2,1].set_title('z-position', fontsize = 16)
-#     axs[2,1].set_ylabel('position (mm)', fontsize = 12)
-#     axs[2,1].set_xlabel('acquisition', fontsize = 12)
-#     axs[2,1].set_ylim([iaxismin, iaxismax])
-#     plt.tight_layout()
-#     # plt.savefig('plot_%s.png'%i, dpi=600)  
-#     # plt.close() #comment this out if you want to see the plots. Closing plots helps code run faster
-    
 
-    
+# plot for different conditions    
+mplot([7,9,10])
+mplot([26,22,25])
+mplot([31,20,40,17,19,29])
+mplot([36,42,44])
+mplot([2,1,4,3])
+mplot([43,38,37])
+mplot([11,21,32,39,33,30,35])
+mplot([24,28,27])
+mplot([15,23,8,41,6,18,0])
+mplot([16,34,12,13,14])
+  
 # ## Save data that was manipulated in previous operation to a single excel file with multiple folders
 # with pd.ExcelWriter('day-data.xlsx', engine='openpyxl') as writer:
 #     #save oscillation strain data to excel sheet
@@ -278,9 +266,3 @@ mplot(0,2)
 #     hstd.to_excel(writer, sheet_name='loss modulus std')
 # now = datetime.datetime.now()
 # print('code run without errors time: %s'%now)
-
-# #this whill loop for however many 
-# for i < find_num_plates():
-    
-
-
